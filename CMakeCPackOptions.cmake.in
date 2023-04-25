@@ -31,6 +31,43 @@ endif()
 # they might not if qt was not enabled for the build
 include("@QT_DIALOG_CPACK_OPTIONS_FILE@" OPTIONAL)
 
+if(CPACK_GENERATOR MATCHES "INNOSETUP")
+  if(@CMAKE_SIZEOF_VOID_P@ EQUAL 8)
+    set(CPACK_INNOSETUP_ARCHITECTURE "x64")
+  elseif(@CMAKE_SIZEOF_VOID_P@ EQUAL 4)
+    set(CPACK_INNOSETUP_ARCHITECTURE "x86")
+  endif()
+
+  set(CPACK_INNOSETUP_SETUP_ChangesEnvironment "yes")
+  list(APPEND CPACK_INNOSETUP_EXTRA_SCRIPTS "@CMake_SOURCE_DIR@/Utilities/Release/IS/SetupExtras.iss")
+
+  # Tell cpack to create the following links
+  set(SPHINX_HTML "@SPHINX_HTML@")
+  if(SPHINX_HTML)
+    list(APPEND CPACK_INNOSETUP_MENU_LINKS
+         "@CMAKE_DOC_DIR@/html/index.html" "CMake Documentation"
+         )
+  endif()
+
+  list(APPEND CPACK_INNOSETUP_MENU_LINKS
+       "https://cmake.org" "CMake Web Site"
+       )
+  set(CPACK_INNOSETUP_CREATE_UNINSTALL_LINK ON)
+
+  # Set the icons used for the installer itself
+  set(CPACK_INNOSETUP_ICON_FILE "@CMake_SOURCE_DIR@/Utilities/Release/CMakeLogo.ico")
+  # Don't use CPACK_PACKAGE_ICON to avoid conflicts with NSIS
+  set(CPACK_INNOSETUP_SETUP_WizardSmallImageFile "@CMake_SOURCE_DIR@/Utilities/Release/IS/WizardSmallImageFile.bmp")
+  set(CPACK_INNOSETUP_SETUP_WizardImageFile "@CMake_SOURCE_DIR@/Utilities/Release/IS/WizardImageFile.bmp")
+
+  set(CPACK_PACKAGE_HOMEPAGE_URL "https://cmake.org")
+  set(CPACK_INNOSETUP_SETUP_AppPublisherURL "http://www.kitware.com")
+
+  if(CMAKE_PACKAGE_QTGUI)
+    set(CPACK_INNOSETUP_SETUP_UninstallDisplayIcon "{app}\\bin\\cmake-gui.exe")
+  endif()
+endif()
+
 if(CPACK_GENERATOR MATCHES "IFW")
 
   # Installer configuration
